@@ -6,7 +6,7 @@ const app = express();
 const port = 3004;
 
 // OpenWeatherMap API configuration
-const API_KEY = '4a0abbc8b904c7ecd6a197e54823c7c2'; // Replace with your API key
+const API_KEY = '4a0abbc8b904c7ecd6a197e54823c7c2';
 const WEATHER_API_URL = 'http://api.openweathermap.org/data/2.5/weather';
 
 // Define the SOAP service
@@ -19,7 +19,7 @@ const weatherService = {
           if (!city) {
             throw new Error('City is required');
           }
-
+          
           // Fetch data from OpenWeatherMap API
           const response = await axios.get(WEATHER_API_URL, {
             params: {
@@ -28,7 +28,7 @@ const weatherService = {
               units: 'metric' // Temperature in Celsius
             }
           });
-
+          
           // Return weather data in SOAP format
           return {
             temperature: response.data.main.temp,
@@ -54,24 +54,20 @@ app.listen(port, () => {
                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-
-      <message name="getWeatherRequest">
+       <message name="getWeatherRequest">
         <part name="city" type="xsd:string"/>
       </message>
-
-      <message name="getWeatherResponse">
+       <message name="getWeatherResponse">
         <part name="temperature" type="xsd:string"/>
         <part name="description" type="xsd:string"/>
       </message>
-
-      <portType name="WeatherPortType">
+       <portType name="WeatherPortType">
         <operation name="getWeather">
           <input message="tns:getWeatherRequest"/>
           <output message="tns:getWeatherResponse"/>
         </operation>
       </portType>
-
-      <binding name="WeatherBinding" type="tns:WeatherPortType">
+       <binding name="WeatherBinding" type="tns:WeatherPortType">
         <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
         <operation name="getWeather">
           <soap:operation soapAction="urn:getWeather"/>
@@ -83,14 +79,13 @@ app.listen(port, () => {
           </output>
         </operation>
       </binding>
-
-      <service name="WeatherService">
+       <service name="WeatherService">
         <port name="WeatherPort" binding="tns:WeatherBinding">
-          <soap:address location="http://localhost:3002/soap"/>
+          <soap:address location="http://localhost:${port}/soap"/>
         </port>
       </service>
     </definitions>
   `;
-
+  
   soap.listen(app, '/soap', weatherService, xml);
 });
